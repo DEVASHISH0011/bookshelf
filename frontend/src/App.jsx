@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import search from "./assets/search.png";
 
 const API_KEY = import.meta.env.VITE_GOOGLEBOOK_BOOK;
@@ -11,30 +12,26 @@ export default function App() {
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [bookCover, setBookCover] = useState([]);
 
+  const navigate = useNavigate();
+
   const categories = [
-    "fiction",
-    "technology",
-    "business",
-    "science",
-    "history",
-    "romance",
-    "fantasy",
-    "self-help",
-    "biography",
-    "psychology",
+    "Fiction","Literary Fiction","Classics","Fantasy","Science Fiction","Speculative Fiction","Dystopian","Romance","Historical Fiction","Horror","Thriller","Mystery","Crime","Adventure","Young Adult Fiction","Children's Fiction",
+    "Science","Mathematics","Physics","Chemistry","Biology","Astronomy","Computer Science","Computers","Technology","Engineering","Artificial Intelligence","Data Science","Robotics",
+    "Health & Fitness","Medical","Mental Health","Nutrition","Diet & Weight Loss","Yoga","Meditation","Self-Help","Personal Development",
+    "Business & Economics","Management","Leadership","Marketing","Finance","Investing","Entrepreneurship","Career Development",
+    "Art","Design","Architecture","Photography","Music","Performing Arts","Fashion","Film & Television",
+    "Religion","Spirituality","Mythology","Social Science","Cultural Studies","Ethics","Law","True Crime",
+    "Cooking","Food & Drink","Travel","Sports & Recreation","Games & Activities","Crafts & Hobbies","Gardening","Pets",
+    "Juvenile Fiction","Juvenile Nonfiction","Picture Books","Early Learning","Textbooks","Study Guides","Exam Preparation"
   ];
 
-  const randomCategory =
-    categories[Math.floor(Math.random() * categories.length)];
+  const randomCategory = categories[Math.floor(Math.random() * categories.length)];
 
   // Fetch suggestions
   const fetchSuggestions = async (text) => {
     if (!text) return setSuggestions([]);
-
     try {
-      const res = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${text}&key=${API_KEY}`
-      );
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${text}&key=${API_KEY}`);
       const data = await res.json();
       setSuggestions(data.items || []);
     } catch {
@@ -45,11 +42,8 @@ export default function App() {
   // Search books
   const searchBooks = async () => {
     if (!query) return setSearchedBooks([]);
-
     try {
-      const res = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${API_KEY}`
-      );
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&key=${API_KEY}`);
       const data = await res.json();
       setSearchedBooks(data.items || []);
     } catch {
@@ -61,22 +55,15 @@ export default function App() {
   const BookCover = async () => {
     try {
       const res = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=subject:${randomCategory}&orderBy=newest&startIndex=${Math.floor(
-          Math.random() * 40
-        )}&maxResults=24&key=${API_KEY}`
+        `https://www.googleapis.com/books/v1/volumes?q=subject:${randomCategory}&orderBy=newest&startIndex=${Math.floor(Math.random() * 40)}&maxResults=24&key=${API_KEY}`
       );
-
       const data = await res.json();
-
-      const books =
-        data.items
-          ?.map((b) => ({
-            id: b.id,
-            title: b.volumeInfo?.title,
-            thumbnail: b.volumeInfo?.imageLinks?.thumbnail,
-          }))
-          .filter((b) => b.thumbnail) || [];
-
+      const books = data.items?.map((b) => ({
+        id: b.id,
+        title: b.volumeInfo?.title,
+        thumbnail: b.volumeInfo?.imageLinks?.thumbnail,
+        authors: b.volumeInfo?.authors?.join(", "),
+      })).filter((b) => b.thumbnail) || [];
       setBookCover(books);
     } catch {
       setBookCover([]);
@@ -86,6 +73,15 @@ export default function App() {
   useEffect(() => {
     BookCover();
   }, []);
+
+  // Genres state
+  const [showAll, setShowAll] = useState(false);
+  const visibleGenres = showAll ? categories : categories.slice(0, 31);
+
+  const handleClick = (genre) => {
+    const slug = genre.toLowerCase().replace(/\s+/g, "-");
+    navigate(`/genre/${slug}`);
+  };
 
   const addBook = (book) => {
     if (!savedBooks.find((b) => b.id === book.id)) {
@@ -100,11 +96,11 @@ export default function App() {
   return (
     <div className="min-h-screen bg-purple-900 text-black">
       {/* NAVBAR */}
-      <nav className="h-16 bg-purple-300 flex items-center justify-evenly px-8 shadow-md">
-        <div className="text-2xl tracking-wide">Books Library</div>
+      <nav className="fixed w-full h-16 top-0 z-50 bg-purple-900/90 backblur-blur-2xl flex items-center justify-evenly px-8 shadow-md">
+        <div className="text-2xl text-white tracking-wide">BookShelf</div>
 
         {/* SEARCH BOX */}
-        <div className="bg-white  h-full flex items-center gap-2 px-4 py-2 max-w-2xl relative">
+        <div className="bg-white h-full flex items-center gap-2 px-4 py-2 max-w-2xl relative">
           <input
             className="p-4 min-w-0 outline-none"
             placeholder="search books..."
@@ -112,37 +108,29 @@ export default function App() {
             onChange={(e) => {
               const value = e.target.value;
               setQuery(value);
-
               if (debounceTimer) clearTimeout(debounceTimer);
-
               if (value.length < 2) {
                 setSuggestions([]);
                 return;
               }
-
-              const timer = setTimeout(() => {
-                fetchSuggestions(value);
-              }, 300);
-
+              const timer = setTimeout(() => fetchSuggestions(value), 300);
               setDebounceTimer(timer);
             }}
           />
 
           <button onClick={searchBooks}>
-            <img
-              src={search}
-              className="w-5 hover:cursor-pointer"
-              alt="search"
-            />
+            <img src={search} className="w-5 hover:cursor-pointer" alt="search" />
           </button>
-                  <button className="h-9 px-3 w-0.01  text-white text-sm bg-gray-500  rounded-md flex items-center hover:bg-gray-300 hover:cursor-pointer hover:text-black"> filter</button>
+
+          <button className="h-9 px-3 w-0.01 text-white text-sm bg-gray-500 rounded-md flex items-center hover:bg-gray-300 hover:cursor-pointer hover:text-black">
+            filter
+          </button>
 
           {/* Suggestions */}
           {suggestions.length > 0 && (
             <div className="absolute top-full left-0 w-full bg-blue-950 shadow-xl z-50">
               {suggestions.slice(0, 5).map((book) => {
                 const info = book.volumeInfo;
-
                 return (
                   <div
                     key={book.id}
@@ -153,26 +141,14 @@ export default function App() {
                     }}
                   >
                     <img
-                      src={
-                        info.imageLinks?.thumbnail ||
-                        "https://via.placeholder.com/80"
-                      }
+                      src={info.imageLinks?.thumbnail || "https://via.placeholder.com/80"}
                       alt={info.title}
                       className="w-12 h-16 rounded"
                     />
-
                     <div className="flex flex-col justify-center text-white">
-                      <h3 className="text-sm font-semibold leading-tight">
-                        {info.title}
-                      </h3>
-
-                      <p className="text-xs text-gray-300 mt-1">
-                        {info.authors?.join(", ") || "Unknown Author"}
-                      </p>
-
-                      <p className="text-xs text-gray-400 mt-1">
-                        {info.publishedDate || "N/A"}
-                      </p>
+                      <h3 className="text-sm font-semibold leading-tight">{info.title}</h3>
+                      <p className="text-xs text-gray-300 mt-1">{info.authors?.join(", ") || "Unknown Author"}</p>
+                      <p className="text-xs text-gray-400 mt-1">{info.publishedDate || "N/A"}</p>
                     </div>
                   </div>
                 );
@@ -187,33 +163,81 @@ export default function App() {
       </nav>
 
       {/* MAIN */}
-      <div className="flex">
+      <div className="mt-16 flex">
         <div className="w-[75%]">
           <nav className="h-12 text-2xl text-amber-100 px-4">Books</nav>
-
           <div className="px-4">
-            <div className="grid grid-cols-5 gap-4 bg-pink-500 p-4">
+            <div className="grid grid-cols-5 gap-4 bg-pink-400 p-4">
               {bookCover.map((book) => (
                 <div
                   key={book.id}
-                  className="flex flex-col items-center"
+                  className="flex flex-col items-center bg-pink-400 backdrop-blur-2xl shadow-2xl hover:cursor-pointer hover:scale-105 transition duration-200"
                 >
                   <img
                     src={book.thumbnail}
-                    className="w-full h-70 object-cover rounded"
+                    className="w-full h-70 object-cover rounded shadow-2xl"
                     alt={book.title}
                   />
-
-                  <p className="text-center text-sm mt-2 text-white line-clamp-2">
-                    {book.title}
-                  </p>
+                  <p className="text-center text-sm mt-2 text-white">{book.title}</p>
+                  <p className="text-center text-sm mt-2 text-amber-200">Authors: {book.authors}</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="w-[25%] bg-amber-600 p-4">Left Panel</div>
+        {/* Genres Sidebar */}
+        <div className="w-[25%] min-h-screen bg-purple-700 backdrop-blur-xl shadow-2xl flex flex-col">
+
+  {/* Sidebar Header */}
+  <nav className="h-16 flex items-center px-5 text-2xl  text-purple-100 bg-purple-800 shadow-lg ">
+    Genres
+  </nav>
+
+  {/* Genres Grid */}
+  <div className="flex-1 overflow-y-auto p-4">
+    <div className="grid grid-cols-3 gap-2  p-4 bg-purple-600 ">
+      {visibleGenres.map((genre) => (
+        <div
+          key={genre}
+          title={genre}
+          onClick={() => handleClick(genre)}
+          className="
+            text-purple-100  cursor-pointer
+            px-3 py-2 
+          
+            hover:scale-120
+            transition-all duration-200
+            truncate whitespace-nowrap overflow-hidden
+          "
+        >
+          {genre}
+        </div>
+      ))}
+    </div>
+
+    {/* Read More Button */}
+    {categories.length > 18 && (
+      <div className="flex justify-center mt-5">
+        <button
+          onClick={() => setShowAll(!showAll)}
+          className="
+            px-6 py-2
+            w-full
+            text-black bg-white text-sm font-semibold
+             hover:scale-105
+            transition-all duration-300
+            shadow-md
+          "
+        >
+          {showAll ? " See less" : " See more"}
+        </button>
+      </div>
+    )}
+  </div>
+
+</div>
+
       </div>
     </div>
   );
