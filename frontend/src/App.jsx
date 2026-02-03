@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect ,useRef } from "react";
+
 import search from "./assets/search.png";
 
 const API_KEY = import.meta.env.VITE_GOOGLEBOOK_BOOK;
@@ -9,11 +9,12 @@ export default function App() {
   const [suggestions, setSuggestions] = useState([]);
   const [searchedBooks, setSearchedBooks] = useState([]);
   const [savedBooks, setSavedBooks] = useState([]);
-  const [debounceTimer, setDebounceTimer] = useState(null);
+const debounceTimer = useRef(null);
+
   const [bookCover, setBookCover] = useState([]);
+  
 
-  const navigate = useNavigate();
-
+ 
   const categories = [
     "Fiction","Literary Fiction","Classics","Fantasy","Science Fiction","Speculative Fiction","Dystopian","Romance","Historical Fiction","Horror","Thriller","Mystery","Crime","Adventure","Young Adult Fiction","Children's Fiction",
     "Science","Mathematics","Physics","Chemistry","Biology","Astronomy","Computer Science","Computers","Technology","Engineering","Artificial Intelligence","Data Science","Robotics",
@@ -31,12 +32,15 @@ export default function App() {
   const fetchSuggestions = async (text) => {
     if (!text) return setSuggestions([]);
     try {
-      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${text}&key=${API_KEY}`);
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(text)}&maxResults=5&key=${API_KEY}`)
+
       const data = await res.json();
       setSuggestions(data.items || []);
     } catch {
       setSuggestions([]);
     }
+    console.log(data.items);
+
   };
 
   // Search books
@@ -96,7 +100,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-purple-900 text-black">
       {/* NAVBAR */}
-      <nav className="fixed w-full h-16 top-0 z-50 bg-purple-900/90 backblur-blur-2xl flex items-center justify-evenly px-8 shadow-md">
+      <nav className="fixed w-full h-16 top-0 z-50 bg-purple-900/90 backdrop-blur-2xl flex items-center justify-evenly px-8 shadow-md">
         <div className="text-2xl text-white tracking-wide">BookShelf</div>
 
         {/* SEARCH BOX */}
@@ -105,17 +109,22 @@ export default function App() {
             className="p-4 min-w-0 outline-none"
             placeholder="search books..."
             value={query}
-            onChange={(e) => {
-              const value = e.target.value;
-              setQuery(value);
-              if (debounceTimer) clearTimeout(debounceTimer);
-              if (value.length < 2) {
-                setSuggestions([]);
-                return;
-              }
-              const timer = setTimeout(() => fetchSuggestions(value), 300);
-              setDebounceTimer(timer);
-            }}
+onChange={(e) => {
+  const value = e.target.value;
+  setQuery(value);
+
+  if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+  if (value.length < 2) {
+    setSuggestions([]);
+    return;
+  }
+
+  debounceTimer.current = setTimeout(() => {
+    fetchSuggestions(value);
+  }, 300);
+}}
+
           />
 
           <button onClick={searchBooks}>
@@ -197,23 +206,7 @@ export default function App() {
   {/* Genres Grid */}
   <div className="flex-1 overflow-y-auto p-4">
     <div className="grid grid-cols-3 gap-2  p-4 bg-purple-600 ">
-      {visibleGenres.map((genre) => (
-        <div
-          key={genre}
-          title={genre}
-          onClick={() => handleClick(genre)}
-          className="
-            text-purple-100  cursor-pointer
-            px-3 py-2 
-          
-            hover:scale-120
-            transition-all duration-200
-            truncate whitespace-nowrap overflow-hidden
-          "
-        >
-          {genre}
-        </div>
-      ))}
+      
     </div>
 
     {/* Read More Button */}
