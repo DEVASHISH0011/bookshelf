@@ -1,8 +1,11 @@
+
+"use client";
 import { useState, useEffect ,useRef } from "react";
 
-import search from "./assets/search.png";
 
-const API_KEY = import.meta.env.VITE_GOOGLEBOOK_BOOK;
+
+const API_KEY = process.env.NEXT_PUBLIC_GOOGLEBOOK_BOOK;
+
 
 export default function App() {
   const [query, setQuery] = useState("");
@@ -32,14 +35,14 @@ const debounceTimer = useRef(null);
   const fetchSuggestions = async (text) => {
     if (!text) return setSuggestions([]);
     try {
-      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(text)}&maxResults=5&key=${API_KEY}`)
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${text}&maxResults=5&key=${API_KEY}`)
 
       const data = await res.json();
       setSuggestions(data.items || []);
     } catch {
       setSuggestions([]);
     }
-    console.log(data.items);
+
 
   };
 
@@ -120,15 +123,13 @@ onChange={(e) => {
     return;
   }
 
-  debounceTimer.current = setTimeout(() => {
-    fetchSuggestions(value);
-  }, 300);
+
 }}
 
           />
 
           <button onClick={searchBooks}>
-            <img src={search} className="w-5 hover:cursor-pointer" alt="search" />
+            <img src="/search.png" className="w-5 hover:cursor-pointer hover:scale-105" alt="search" />
           </button>
 
           <button className="h-9 px-3 w-0.01 text-white text-sm bg-gray-500 rounded-md flex items-center hover:bg-gray-300 hover:cursor-pointer hover:text-black">
@@ -234,4 +235,4 @@ onChange={(e) => {
       </div>
     </div>
   );
-}
+}  
