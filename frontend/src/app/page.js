@@ -124,9 +124,7 @@ onChange={(e) => {
   }
 
 
-}}
-
-          />
+}}/>
 
           <button onClick={searchBooks}>
             <img src="/search.png" className="w-5 hover:cursor-pointer hover:scale-105" alt="search" />
