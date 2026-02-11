@@ -1,13 +1,13 @@
+
 "use client";
 import { useState, useEffect ,useRef } from "react";
 import Link from "next/link";
 
 
-
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLEBOOK_BOOK;
 
 
-export default function Appp() {
+export default function App() {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [searchedBooks, setSearchedBooks] = useState([]);
@@ -15,6 +15,8 @@ export default function Appp() {
 const debounceTimer = useRef(null);
 
   const [bookCover, setBookCover] = useState([]);
+  
+
   
   const categories = [
     "Fiction","Literary Fiction","Classics","Fantasy","Science Fiction","Speculative Fiction","Dystopian","Romance","Historical Fiction","Horror","Thriller","Mystery","Crime","Adventure","Young Adult Fiction","Children's Fiction",
@@ -43,6 +45,9 @@ const debounceTimer = useRef(null);
 
 
   };
+
+
+
 
   // Search books
   const searchBooks = async () => {
@@ -116,10 +121,6 @@ onChange={(e) => {
     setSuggestions([]);
     return;
   }
-  
-  debounceTimer.current = setTimeout(() => {
-    fetchSuggestions(value);
-  }, 500); 
 
 
 }}/>
@@ -181,7 +182,7 @@ onChange={(e) => {
                 >
                   <img
                     src={book.thumbnail}
-                    className="w-full aspect-[2/3] object-cover rounded shadow-2xl"
+                    className="w-full h-70 object-cover rounded shadow-2xl"
                     alt={book.title}
                   />
                   <p className="text-center text-sm mt-2 text-white">{book.title}</p>
@@ -204,10 +205,10 @@ onChange={(e) => {
   <div className="flex-1 overflow-y-auto p-4">
     <div className="grid grid-cols-3 gap-2 gap-x-3 p-4 bg-purple-600 ">
       {visibleGenres.map((genre) => (
-       <Link
+        <Link
   key={genre}
   href={`/genre/${genre}`}
-  className="h-10 truncate overflow-hidden text-white hover:scale-105 cursor-pointer"
+  className="h-10 truncate overflow-hidden text-white hover:scale-110 cursor-pointer"
 >
   {genre}
 </Link>))}
@@ -222,7 +223,7 @@ onChange={(e) => {
             px-6 py-2
             w-full
             text-black bg-white text-sm font-semibold
-             hover:scale-105
+            hover:scale-105
             transition-all duration-300
             shadow-md
           "
