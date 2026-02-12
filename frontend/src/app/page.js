@@ -41,14 +41,7 @@ const debounceTimer = useRef(null);
       setSuggestions(data.items || []);
     } catch {
       setSuggestions([]);
-    }
-
-
-  };
-
-
-
-
+    }};
   // Search books
   const searchBooks = async () => {
     if (!query) return setSearchedBooks([]);
@@ -60,7 +53,6 @@ const debounceTimer = useRef(null);
       setSearchedBooks([]);
     }
   };
-
   // Fetch book covers + titles
   const BookCover = async () => {
     try {
@@ -111,23 +103,29 @@ const debounceTimer = useRef(null);
             className="p-4 min-w-0 outline-none"
             placeholder="search books..."
             value={query}
-onChange={(e) => {
-  const value = e.target.value;
-  setQuery(value);
+              onChange={(e) => {
+                const value = e.target.value;
+                setQuery(value);
 
-  if (debounceTimer.current) clearTimeout(debounceTimer.current);
+                if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
-  if (value.length < 2) {
-    setSuggestions([]);
-    return;
-  }
+                if (value.length < 2) {
+                  setSuggestions([]);
+                  return;
+                }
+                debounceTimer.current = setTimeout(() => {
+                  fetchSuggestions(value);
+                }, 500);
 
 
 }}/>
-
-          <button onClick={searchBooks}>
+          
+          <Link  
+                href={`/search/${query}`}
+                key={query}>
             <img src="/search.png" className="w-5 hover:cursor-pointer hover:scale-105" alt="search" />
-          </button>
+            
+          </Link>
 
           <button className="h-9 px-3 w-0.01 text-white text-sm bg-gray-500 rounded-md flex items-center hover:bg-gray-300 hover:cursor-pointer hover:text-black">
             filter
@@ -139,13 +137,14 @@ onChange={(e) => {
               {suggestions.slice(0, 5).map((book) => {
                 const info = book.volumeInfo;
                 return (
-                  <div
+                  <Link
                     key={book.id}
                     className="flex gap-3 p-3 hover:bg-[#3a3d5c] cursor-pointer"
                     onClick={() => {
                       setQuery(info.title);
                       setSuggestions([]);
                     }}
+                    href={`search/${info.title}`}
                   >
                     <img
                       src={info.imageLinks?.thumbnail || "https://via.placeholder.com/80"}
@@ -157,7 +156,7 @@ onChange={(e) => {
                       <p className="text-xs text-gray-300 mt-1">{info.authors?.join(", ") || "Unknown Author"}</p>
                       <p className="text-xs text-gray-400 mt-1">{info.publishedDate || "N/A"}</p>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

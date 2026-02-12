@@ -17,7 +17,7 @@ export default function App() {
 
   const [bookCover, setBookCover] = useState([]);
   const params = useParams();
-  const name = params.name;
+  const name = decodeURIComponent(params.name);
 
   const categories = [
     "Fiction","Literary Fiction","Classics","Fantasy","Science Fiction","Speculative Fiction","Dystopian","Romance","Historical Fiction","Horror","Thriller","Mystery","Crime","Adventure","Young Adult Fiction","Children's Fiction",
@@ -108,25 +108,27 @@ export default function App() {
             className="p-4 min-w-0 outline-none"
             placeholder="search books..."
             value={query}
-onChange={(e) => {
-  const value = e.target.value;
-  setQuery(value);
+              onChange={(e) => {
+                const value = e.target.value;
+                setQuery(value);
 
-  if (debounceTimer.current) clearTimeout(debounceTimer.current);
+                if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
-  if (value.length < 2) {
-    setSuggestions([]);
-    return;
-  }
-debounceTimer.current = setTimeout(() => {
-    fetchSuggestions(value);
-  }, 500);
+                if (value.length < 2) {
+                  setSuggestions([]);
+                  return;
+                }
+              debounceTimer.current = setTimeout(() => {
+                  fetchSuggestions(value);
+                }, 500);
 
 }}/>
 
-          <button onClick={searchBooks}>
+          <Link  
+                href={`/search/${query}`}>
             <img src="/search.png" className="w-5 hover:cursor-pointer hover:scale-105" alt="search" />
-          </button>
+            
+          </Link>
 
           <button className="h-9 px-3 w-0.01 text-white text-sm bg-gray-500 rounded-md flex items-center hover:bg-gray-300 hover:cursor-pointer hover:text-black">
             filter
@@ -174,18 +176,18 @@ debounceTimer.current = setTimeout(() => {
           <nav className="h-12 text-2xl text-amber-100 px-4 py-1.5">{name} Books</nav>
           <div className="px-4">
             <div className="grid grid-cols-5 gap-4 bg-pink-400 p-4">
-              {bookCover.map((book) => (
+              {bookCover.map((boook) => (
                 <div
-                  key={book.id}
+                  key={boook.id}
                   className="flex flex-col items-center bg-pink-400 backdrop-blur-2xl shadow-2xl hover:cursor-pointer hover:scale-105 transition duration-200"
                 >
                   <img
-                    src={book.thumbnail}
+                    src={boook.thumbnail}
                     className="w-full h-70 object-cover rounded shadow-2xl"
-                    alt={book.title}
+                    alt={boook.title}
                   />
-                  <p className="text-center text-sm mt-2 text-white">{book.title}</p>
-                  <p className="text-center text-sm mt-2 text-amber-200">Authors: {book.authors}</p>
+                  <p className="text-center text-sm mt-2 text-white">{boook.title}</p>
+                  <p className="text-center text-sm mt-2 text-amber-200">Authors: {boook.authors}</p>
                 </div>
               ))}
             </div>
@@ -204,7 +206,7 @@ debounceTimer.current = setTimeout(() => {
   <div className="flex-1 overflow-y-auto p-4">
     <div className="grid grid-cols-3 gap-2 gap-x-3 p-4 bg-purple-600 ">
       {visibleGenres.map((genre) => (
-       <Link
+        <Link
   key={genre}
   href={`/genre/${genre}`}
   className="h-10 truncate overflow-hidden text-white hover:scale-110 cursor-pointer"

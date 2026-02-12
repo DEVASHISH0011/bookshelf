@@ -1,13 +1,13 @@
 
 "use client";
 import { useState, useEffect ,useRef } from "react";
-
-
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLEBOOK_BOOK;
 
 
-export default function Home() {
+export default function App() {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [searchedBooks, setSearchedBooks] = useState([]);
@@ -16,8 +16,9 @@ const debounceTimer = useRef(null);
 
   const [bookCover, setBookCover] = useState([]);
   
-
- 
+  const params = useParams();
+  const name = decodeURIComponent(params.query);
+  
   const categories = [
     "Fiction","Literary Fiction","Classics","Fantasy","Science Fiction","Speculative Fiction","Dystopian","Romance","Historical Fiction","Horror","Thriller","Mystery","Crime","Adventure","Young Adult Fiction","Children's Fiction",
     "Science","Mathematics","Physics","Chemistry","Biology","Astronomy","Computer Science","Computers","Technology","Engineering","Artificial Intelligence","Data Science","Robotics",
@@ -46,6 +47,9 @@ const debounceTimer = useRef(null);
 
   };
 
+
+
+
   // Search books
   const searchBooks = async () => {
     if (!query) return setSearchedBooks([]);
@@ -62,7 +66,7 @@ const debounceTimer = useRef(null);
   const BookCover = async () => {
     try {
       const res = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=subject:${randomCategory}&orderBy=newest&startIndex=${Math.floor(Math.random() * 40)}&maxResults=24&key=${API_KEY}`
+        `https://www.googleapis.com/books/v1/volumes?q=subject:${name}&maxResults=24&key=${API_KEY}`
       );
       const data = await res.json();
       const books = data.items?.map((b) => ({
@@ -118,17 +122,19 @@ onChange={(e) => {
     setSuggestions([]);
     return;
   }
-  
-  debounceTimer.current = setTimeout(() => {
-    fetchSuggestions(value);
-  }, 500); 
+                debounceTimer.current = setTimeout(() => {
+                  fetchSuggestions(value);
+                }, 500);
 
 
 }}/>
 
-          <button onClick={searchBooks}>
+          <Link  
+                href={`/search/${query}`}
+                key={query}>
             <img src="/search.png" className="w-5 hover:cursor-pointer hover:scale-105" alt="search" />
-          </button>
+            
+          </Link>
 
           <button className="h-9 px-3 w-0.01 text-white text-sm bg-gray-500 rounded-md flex items-center hover:bg-gray-300 hover:cursor-pointer hover:text-black">
             filter
@@ -140,13 +146,14 @@ onChange={(e) => {
               {suggestions.slice(0, 5).map((book) => {
                 const info = book.volumeInfo;
                 return (
-                  <div
+                  <Link
                     key={book.id}
                     className="flex gap-3 p-3 hover:bg-[#3a3d5c] cursor-pointer"
                     onClick={() => {
                       setQuery(info.title);
-                      setSuggestions([]);
-                    }}
+                      setSuggestions([]);   }}
+                    href={`search/${info.title}`}
+
                   >
                     <img
                       src={info.imageLinks?.thumbnail || "https://via.placeholder.com/80"}
@@ -158,7 +165,7 @@ onChange={(e) => {
                       <p className="text-xs text-gray-300 mt-1">{info.authors?.join(", ") || "Unknown Author"}</p>
                       <p className="text-xs text-gray-400 mt-1">{info.publishedDate || "N/A"}</p>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -173,7 +180,7 @@ onChange={(e) => {
       {/* MAIN */}
       <div className="mt-16 flex">
         <div className="w-[75%]">
-          <nav className="h-12 text-2xl text-amber-100 px-4">Books</nav>
+          <nav className="h-12 text-2xl text-amber-100 px-4 py-2">{name}</nav>
           <div className="px-4">
             <div className="grid grid-cols-5 gap-4 bg-pink-400 p-4">
               {bookCover.map((book) => (
@@ -183,7 +190,7 @@ onChange={(e) => {
                 >
                   <img
                     src={book.thumbnail}
-                    className="w-full aspect-[2/3] object-cover rounded shadow-2xl"
+                    className="w-full h-70 object-cover rounded shadow-2xl"
                     alt={book.title}
                   />
                   <p className="text-center text-sm mt-2 text-white">{book.title}</p>
@@ -206,13 +213,13 @@ onChange={(e) => {
   <div className="flex-1 overflow-y-auto p-4">
     <div className="grid grid-cols-3 gap-2 gap-x-3 p-4 bg-purple-600 ">
       {visibleGenres.map((genre) => (
-        <div key= {genre}
-        className=" h-10 truncate overflow-hidden text-white hover:scale-105z hover:cursor-pointer  "
-
-      
-       >{genre}
-        
-      </div>))}
+        <Link
+  key={genre}
+  href={`/genre/${genre}`}
+  className="h-10 truncate overflow-hidden text-white hover:scale-110 cursor-pointer"
+>
+  {genre}
+</Link>))}
     </div>
 
     {/* Read More Button */}
@@ -224,7 +231,7 @@ onChange={(e) => {
             px-6 py-2
             w-full
             text-black bg-white text-sm font-semibold
-             hover:scale-105
+            hover:scale-105
             transition-all duration-300
             shadow-md
           "
