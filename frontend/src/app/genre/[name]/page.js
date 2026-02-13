@@ -57,12 +57,11 @@ export default function App() {
       setSearchedBooks([]);
     }
   };
-
   // Fetch book covers + titles
   const BookCover = async () => {
     try {
       const res = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=subject:${name}&maxResults=24&key=${API_KEY}`
+        `https://www.googleapis.com/books/v1/volumes?q=subject:${name}&key=${API_KEY}`
       );
       const data = await res.json();
       const books = data.items?.map((b) => ({
@@ -140,13 +139,15 @@ export default function App() {
               {suggestions.slice(0, 5).map((book) => {
                 const info = book.volumeInfo;
                 return (
-                  <div
+                  <Link
                     key={book.id}
                     className="flex gap-3 p-3 hover:bg-[#3a3d5c] cursor-pointer"
                     onClick={() => {
                       setQuery(info.title);
-                      setSuggestions([]);
+                      setSuggestions([]); 
                     }}
+                      href={`/search/${info.title}`}
+                   
                   >
                     <img
                       src={info.imageLinks?.thumbnail || "https://via.placeholder.com/80"}
@@ -158,7 +159,7 @@ export default function App() {
                       <p className="text-xs text-gray-300 mt-1">{info.authors?.join(", ") || "Unknown Author"}</p>
                       <p className="text-xs text-gray-400 mt-1">{info.publishedDate || "N/A"}</p>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -224,7 +225,7 @@ export default function App() {
             px-6 py-2
             w-full
             text-black bg-white text-sm font-semibold
-             hover:scale-105
+            hover:scale-105
             transition-all duration-300
             shadow-md
           "

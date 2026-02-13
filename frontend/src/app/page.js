@@ -134,11 +134,11 @@ const debounceTimer = useRef(null);
           {/* Suggestions */}
           {suggestions.length > 0 && (
             <div className="absolute top-full left-0 w-full bg-blue-950 shadow-xl z-50">
-              {suggestions.slice(0, 5).map((book) => {
-                const info = book.volumeInfo;
+              {suggestions.slice(0, 5).map((b) => {
+                const info = b.volumeInfo;
                 return (
                   <Link
-                    key={book.id}
+                    key={b.id}
                     className="flex gap-3 p-3 hover:bg-[#3a3d5c] cursor-pointer"
                     onClick={() => {
                       setQuery(info.title);
@@ -175,9 +175,10 @@ const debounceTimer = useRef(null);
           <div className="px-4">
             <div className="grid grid-cols-5 gap-4 bg-pink-400 p-4">
               {bookCover.map((book) => (
-                <div
+                <Link
                   key={book.id}
                   className="flex flex-col items-center bg-pink-400 backdrop-blur-2xl shadow-2xl hover:cursor-pointer hover:scale-105 transition duration-200"
+                  href={`/book/${book.id}`}
                 >
                   <img
                     src={book.thumbnail}
@@ -186,7 +187,7 @@ const debounceTimer = useRef(null);
                   />
                   <p className="text-center text-sm mt-2 text-white">{book.title}</p>
                   <p className="text-center text-sm mt-2 text-amber-200">Authors: {book.authors}</p>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
