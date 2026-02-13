@@ -36,7 +36,7 @@ export default function App() {
   const fetchSuggestions = async (text) => {
     if (!text) return setSuggestions([]);
     try {
-      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${text}&maxResults=5&key=${API_KEY}`)
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${text}&key=${API_KEY}`)
 
       const data = await res.json();
       setSuggestions(data.items || []);
@@ -172,33 +172,13 @@ export default function App() {
             login
         </button>
         </nav>
-    {/*MAIN*/}
+
 {/* MAIN */}
-<div className="mt-20 flex justify-center items-center min-h-screen px-6">
-  {bookCover.map((book) => (
-    <div
-      key={book.id}
-      className="flex flex-col items-center bg-pink-400 p-10 rounded-3xl shadow-2xl"
-    >
-      {/* FIXED SIZE FRAME */}
-      <div className="w-[800px] h-[1000px] bg-white flex items-center justify-center overflow-hidden rounded-2xl shadow-inner">
-        <img
-          src={book.thumbnail}
-          alt={book.title}
-          className="max-w-full max-h-full object-contain"
-        />
-      </div>
+      <div className="mt-16 flex">
+  
 
-      {/* BOOK INFO */}
-      <div className="mt-8 text-center text-gray-900">
-        <h1 className="text-4xl font-bold">{book.title}</h1>
-        <p className="text-xl mt-3">{book.authors}</p>
-        <p className="text-lg mt-2">{book.publishedDate}</p>
-      </div>
-    </div>
-  ))}
-</div>
-
+          </div>
+</div>    
     
     
     
@@ -231,7 +211,5 @@ export default function App() {
     
     
     
-    
-    </div>
     );
 }  

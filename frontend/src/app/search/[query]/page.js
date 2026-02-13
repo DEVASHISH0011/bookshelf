@@ -138,11 +138,11 @@ onChange={(e) => {
           {/* Suggestions */}
           {suggestions.length > 0 && (
             <div className="absolute top-full left-0 w-full bg-blue-950 shadow-xl z-50">
-              {suggestions.slice(0, 5).map((boook) => {
-                const info = boook.volumeInfo;
+              {suggestions.slice(0, 5).map((book) => {
+                const info = book.volumeInfo;
                 return (
                   <Link
-                    key={boook.id}
+                    key={book.id}
                     className="flex gap-3 p-3 hover:bg-[#3a3d5c] cursor-pointer"
                     onClick={() => {
                       setQuery(info.title);
